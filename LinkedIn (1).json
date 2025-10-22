@@ -1,0 +1,507 @@
+{
+  "name": "LinkedIn",
+  "nodes": [
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.messages[0].text.body }}",
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        16
+      ],
+      "id": "ecdc090c-fe9d-4779-9c54-4ec381b47911",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-preview-image-generation",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash-preview-image-generation"
+        },
+        "prompt": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -16
+      ],
+      "id": "6004a1a3-bdbe-4c58-a983-740fa3c9213f",
+      "name": "Generate an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ykavs29DSjB0Rlcc",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "Your task is to act as an expert image prompt engineer for professional social media content. Your goal is to analyze a given LinkedIn post and generate a single, high-quality, and relevant image prompt to be used with a text-to-image AI model.\n\nGuidelines for Prompt Generation:\n\nObjective: The generated image prompt should visually represent the core theme or key takeaway of the LinkedIn post. It should be designed to create an engaging and professional image that complements the text, not just a literal depiction.\n\nStructure: The prompt must be a single, coherent string of keywords or a descriptive sentence. Use commas to separate distinct concepts.\n\nContent & Style:\n\nMain Subject: Clearly define the central focus of the image (e.g., \"a person working at a desk,\" \"an abstract concept like collaboration,\" \"a futuristic cityscape\").\n\nArtistic Style: Specify a professional and visually appealing style (e.g., \"digital illustration,\" \"photorealistic,\" \"minimalist,\" \"3D rendering,\" \"vector art\"). Avoid overly artistic or complex styles that may not be suitable for a professional setting.\n\nMood & Tone: Use adjectives to convey the desired feeling (e.g., \"inspirational,\" \"dynamic,\" \"calm,\" \"innovative,\" \"empowering\").\n\nComposition: Add details about the layout, colors, and lighting (e.g., \"close-up shot,\" \"vibrant color palette,\" \"soft lighting,\" \"wide angle\").\n\nNegative Prompting (optional): If you anticipate undesirable elements, you can include negative keywords at the end of the prompt (e.g., \", no text, no blurry parts, no duplicate elements\").\n\nConstraints:\n\nDo not include any placeholders.\n\nThe output must be the raw prompt text only. Do not include any introductory or concluding sentences.\n\nDo not mention that you are an AI or are generating the content.\n\nAvoid generating prompts that include real people's names, company logos, or specific products unless the post is explicitly about them.\n\nExample Input from User:\n\nPost: Continuous learning is the most valuable currency in tech. The moment we stop being curious is the moment we stop innovating. Whether it's mastering a new programming language or exploring a new framework, every step forward keeps us relevant. What are you learning this week? #Tech #Learning #Innovation\n\nExample Output:\n\nPhotorealistic illustration of a person's head with a complex, glowing neural network connecting to a futuristic digital screen, representing learning and innovation, vibrant and dynamic colors, studio lighting, professional."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -448,
+        -96
+      ],
+      "id": "6867e76b-f57d-4785-aacd-6b2f1e583378",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        64
+      ],
+      "id": "989e8c22-244b-4d08-8f60-31ced45e3279",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ykavs29DSjB0Rlcc",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.output }}",
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        80
+      ],
+      "id": "1bacb9fa-bbf3-4ec2-9201-7d7baec418df",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -32,
+        -160
+      ],
+      "id": "f3b6ec24-7e01-4f66-b357-980430f4820f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "Your task is to act as an expert LinkedIn content strategist. Your goal is to generate a highly effective, professional, and engaging LinkedIn post based on the user's description. The user will provide a brief description of the topic, key takeaways, and any specific goals for the post.\n\nYour response must be a complete LinkedIn post, ready for publication.\n\nGuidelines for Post Generation:\n\nAudience & Persona: The post must be written from a first-person perspective, as if by a professional in a specific field (e.g., software engineer, marketing manager, product leader). The tone should be professional, insightful, and authentic.\n\nStructure:\n\nHook: Start with a strong, attention-grabbing opening sentence. The first 1-2 lines should be compelling enough to encourage a \"See More\" click.\n\nBody: The body should be well-structured and easy to read. Use short paragraphs (1-3 sentences each) and/or bullet points to break up the text. Focus on providing real value, insights, or a personal story.\n\nCall to Action (CTA): Conclude with a clear and concise call to action to encourage engagement. This could be a question, an invitation to share thoughts, or a prompt to follow for more content.\n\nHashtags: Include 3-5 relevant and popular hashtags at the end of the post to increase visibility. Choose a mix of broad and niche hashtags.\n\nTone & Style:\n\nThe overall tone should be professional yet personable.\n\nUse simple, direct language. Avoid jargon unless it's a common term for the target audience.\n\nThe post should feel like it was written by a human, not a bot.\n\nConstraints:\n\nDo not include any placeholders like [Your Name], [Your Company], or [Description of a project]. Generate the complete, finished text.\n\nThe post should be within a reasonable length for LinkedIn, typically 3-5 paragraphs.\n\nDo not mention that you are an AI or that you are generating the content.\n\nDo not include any images or links in the generated text. The user will add these separately.\n\nExample Input from User:\n\nTopic: The importance of continuous learning in the tech industry. Key takeaways: Stay curious, adapt to new technologies, share knowledge. Goal: Encourage discussion."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -752,
+        -176
+      ],
+      "id": "d0190416-fb61-45c1-b2b8-bef1c51d94d8",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        32
+      ],
+      "id": "fa5f0dc8-ffc9-4e8c-95b6-3149e701d554",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ykavs29DSjB0Rlcc",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -176
+      ],
+      "id": "dfd343f7-3844-456b-8b06-de0dafe90b91",
+      "name": "WhatsApp Trigger",
+      "webhookId": "0a46211d-d650-4a3a-833f-26b6cba295a1",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "dhpVx02A7vw49H5R",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "812058311996035",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "messageType": "image",
+        "mediaPath": "useMedian8n",
+        "additionalFields": {
+          "mediaCaption": "={{ $json.output }}"
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        -48
+      ],
+      "id": "f01a1963-1786-4a80-94fa-4619b1337df4",
+      "name": "Send message and wait for response",
+      "webhookId": "c071ceef-6f34-4192-8d8e-ae60ddae26b1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "6iDrH9LGqbSPARQX",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "phoneNumberId": "812058311996035",
+        "recipientPhoneNumber": "={{ $json.contacts[0].input }}",
+        "message": "Approval",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        -48
+      ],
+      "id": "f61c972d-b091-451b-9649-7ac3abdd70e1",
+      "name": "Send message and wait for response1",
+      "webhookId": "eef91f63-f802-4226-8c46-07d254bc3f5c",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "6iDrH9LGqbSPARQX",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f6763ab0-654b-42db-8dbb-fb76aff7463c",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8466ecf2-714a-4670-8a7a-1237a2a6ce0a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "person": "gYFrrUdatQ",
+        "text": "={{ $('Merge').item.json.output }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "8bbf2b40-f20e-41b7-bc8e-7b822f6d3055",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "LszLalrEZbAtH6rQ",
+          "name": "LinkedIn account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        528,
+        -128
+      ],
+      "id": "77a6cf5f-4ea7-4a4e-9c9c-71ec7e01c52d",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "812058311996035",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "Posted Successfully",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        816,
+        -128
+      ],
+      "id": "a96ced0f-7864-488f-afb4-fab01120cda9",
+      "name": "Send message",
+      "webhookId": "7e26e5e8-ed76-441c-a8d5-4cc42d36e21d",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "6iDrH9LGqbSPARQX",
+          "name": "WhatsApp account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "32fcc75b-2508-4916-8c76-b24084facf63",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "543a93215b2ed436eb3fd030cb1479af3331ca30de84b000191d5c8d5bae5fff"
+  },
+  "id": "8M8kUMQxg4RDCfTF",
+  "tags": []
+}
