@@ -131,11 +131,10 @@ This project is licensed under the MIT License — see the LICENSE file for deta
 
 Project maintainer — replace with your contact details.
 
-- Name: V Mani Kumar Reddy
-- Email: mani9515175906@email
-- GitHub: https://github.com/Mani1655B
+- Name: Your Name
+- Email: your@email
+- GitHub: https://github.com/<your-org>
 
 ## Acknowledgements
 
 Credit libraries, inspirations, or contributors.
-
